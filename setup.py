@@ -1,0 +1,35 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+from __future__ import print_function
+from setuptools import setup
+import os
+import sys
+
+readme = open('README.md').read()
+requires = [pkg for pkg in open('requirements.txt').readlines()]
+
+setup(
+    name='agavedb',
+    packages=['agavedb'],
+    version='0.1.1',
+    description='Multiuser-aware key/value store built atop AgaveAPI metadata',
+    author='Matthew W. Vaughn',
+    author_email='vaughn@tacc.utexas.edu',
+    url='https://github.com/TACC/agavedb',
+    package_dir={'agavedb': 'agavedb'},
+    install_requires=requires,
+    license="BSD",
+    keywords='',
+    classifiers=[
+        'Development Status :: 4 - Beta',
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: BSD License',
+        'Natural Language :: English',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 2.7',
+        'Operating System :: OS Independent',
+        'Environment :: Other Environment',
+        'Topic :: Software Development :: Libraries :: Python Modules'
+    ]
+)

@@ -1,0 +1,2 @@
+agavepy>=0.6.1
+hashids>=1.2.0
