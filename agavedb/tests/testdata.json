@@ -1,0 +1,10 @@
+{
+    "key_valid": {
+        "types": [true, null, 1, [1, 2], {
+            "abc": "123"
+        }],
+        "lengths": ["a", "ab", "abc"],
+        "whitespace": ["abc 123", " abc123", "\tabc123"],
+        "banned": ["abc/123", "abc#123", "#abc123", "/abc123"]
+    }
+}

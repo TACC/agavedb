@@ -1,5 +1,5 @@
 
-.PHONY: sdist docs clean release
+.PHONY: sdist docs clean release tests
 
 sdist: clean
 	python setup.py sdist && \
@@ -16,7 +16,10 @@ release: docs
 	python setup.py register sdist upload
 
 clean:
-	rm -rf agavedb.egg-info build/bdist* build/lib
+	rm -rf agavedb/tests/*pyc agavedb/*pyc agavedb.egg-info build/bdist* build/lib .cache agavedb/tests/__pycache__
 
 dist-clean:
 	rm -rf dist
+
+tests:
+	cd agavedb && py.test
