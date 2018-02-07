@@ -1,3 +1,4 @@
 agavepy>=0.6.1
 hashids>=1.2.0
 pytest
+py==1.4.26
