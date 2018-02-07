@@ -1,29 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# To run the tests:
-#
-# 1. Provide Agave API credentials. You can use the ones stored in
-#    $HOME/.agave/current, put them in an agavedb/tests/test_credentials.json
-#    file following the templare, or set environment variables (below).
-#
-# 2. To run the tests, use the following from the agavedb/tests directory with
-#    a Python environment that has requirements.txt installed. This can, and
-#    probably should, be a pipenv or virtualenv environment.
-#
-#    Run all tests:
-#        ```py.test```
-#
-#    Run a single test whose name is <test_name>
-#        ```py.test test_agavedb_keyval.py::<test_name>```
-#
-#    Run all tests with <string> in the name.
-#        ```py.test -k <string>```
-#
-#    Examples:
-#        ```py.test test_agavedb_keyval.py::test_key_valid```
-#        ```py.test -k namespace```
-
+# Usage: See bundled README.md
 
 import json
 import os
@@ -69,7 +47,8 @@ def credentials():
             os.path.join(HERE, credentials_file), 'r'))
     # environment
     for env in ('apikey', 'apisecret', 'username', 'password',
-                'apiserver', 'verify_certs'):
+                'apiserver', 'verify_certs', 'refresh_token',
+                'token', 'client_name'):
         varname = '_AGAVE_' + env.upper()
         if os.environ.get(varname, None) is not None:
             credentials[env] = os.environ.get(varname)

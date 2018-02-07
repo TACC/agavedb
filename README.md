@@ -62,3 +62,7 @@ AgaveDB values can be strings (or Unicode) or numeric values. Formally, this is 
 <h3 id="apidocs">API Documentation</h3>
 
 API docs [are here](docs/api.md)
+
+<h3 id="apidocs">Tests</h3>
+
+Tests are implemented using `pytest`. Usage documentation is in the [tests folder](agavedb/tests/README.md)
