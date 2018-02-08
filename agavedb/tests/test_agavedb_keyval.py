@@ -9,10 +9,10 @@ import pytest
 import random
 import uuid
 
-import agavepy.agave as Agave
-from . import testdata
-
+from agavepy.agave import Agave
 from agavedb import AgaveKeyValStore
+
+from . import testdata
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 

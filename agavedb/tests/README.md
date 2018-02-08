@@ -68,7 +68,7 @@ Password: *******
 _AGAVE_APISERVER=https://api.tacc.cloud/
 _AGAVE_CLIENT_NAME=travis_ci_mwvaughn_tacc
 _AGAVE_USERNAME=mwvaughn
-_AGAVE_USERNAME=Pa$zw0rD!
+_AGAVE_PASSWORD=Pa$zw0rD!
 _AGAVE_APIKEY=Z1c2eNDRDSONw78215QoAcHzflka
 _AGAVE_APISECRET=WfHf84wrUeff3iEuUpxA4a
 ```
