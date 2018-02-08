@@ -12,7 +12,7 @@ script:
 after_success:
 - codecov
 before_deploy:
-  - make clean && make sdist
+  - make clean && make sdist && git add . && git commit -m "Tested"
 deploy:
   provider: pypi
   user: mwvaughn
