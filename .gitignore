@@ -1,4 +1,4 @@
-build/agave-vars.rc
+scripts/agave-vars.rc
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
