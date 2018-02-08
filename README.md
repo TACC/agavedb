@@ -12,7 +12,7 @@ document-oriented solution, you can utilize the underlying Agave `metadata` serv
 
 An implicit assumption is that you have an existing client set up using AgavePy or the TACC Cloud CLI. 
 
-Installation is simple: `pip install agavedb`. Then, start coding. AgaveDB doesn't have a CLI at present. 
+Installation is simple because [AgaveDB is on PyPi](https://pypi.python.org/pypi/agavedb): `pip install agavedb`. Then, start coding. AgaveDB doesn't have a CLI at present. 
 
 ```python
 >>> from agavedb import AgaveKeyValStore, Agave
@@ -63,8 +63,28 @@ AgaveDB values can be strings (or Unicode) or numeric values. Formally, this is 
 
 <h3 id="apidocs">API Documentation</h3>
 
-API docs [are here](docs/api.md)
+Automatically generated API docs [are here](docs/api.md)
 
 <h3 id="apidocs">Tests</h3>
 
-Tests are implemented using `pytest`. Usage documentation is in the [tests folder](agavedb/tests/README.md)
+Tests are implemented using `pytest`. Documentation is in the [tests folder](agavedb/tests/README.md)
+
+<h3 id="source">Source Install</h3>
+
+In addition to using PyPyi, you can install AgaveDB from this source repository.
+
+**From a Github Checkout**
+
+```shell
+$ git clone https://github.com/TACC/agavedb
+$ cd agavedb
+$ git checkout <branch_name>
+$ python setup.py install
+```
+
+**Via a GitHub URL**
+
+```shell
+$ pip install git+https://github.com/TACC/agavedb.git@<branch>
+```
+
