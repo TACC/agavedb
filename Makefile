@@ -31,7 +31,7 @@ preflight:
 	echo "checking git repo is in shape for release"
 	bash scripts/checkrepo.sh
 
-release: prerelease preflight
+release: preflight
 	echo "git tag will be: $(version)"
 	git tag -f "${version}"
 	git push origin "${version}"
