@@ -1,15 +1,26 @@
 ---
 language: python
+
+cache:
+  - pip
+
 python:
   - "2.7"
+
 install:
    - pip install -r requirements-travis.txt
    - pip install git+https://github.com/TACC/agavepy.git@reactors
    - python setup.py install
+
 script:
   - py.test agavedb/tests
+
+after_success:
+  - codecov
+
 deploy:
   provider: pypi
   user: mwvaughn
   password:
     secure: KpdH/CxCDz1P3w2CPTlW17I1HzysM1Njnc7DKolU8wMJkLSo2AmrkQumLU3HNmD2yoCWxy7K5w9UHTnNyCWgYVfug1i4WTUWenL/BqNbAePvwrogduMRIRKJSoo3KCvYjAtW0XGw3rqgXOVzOXIKvpL1lS8ZBJtxTOuqc9vLxMRTDXwNMD6C68n5lghCYwjRWMU+d7lxNdb3pplV0ymMtb47PpysoMYRr3WQkAjHUaKTI7798BmXufeFKyCUrU5Bsnen1KL6RMcFuYqfMZ0zM1abTvD3xM5SWAt3dV4HrlzuEkS4tk0r7i+JxSL6twyYqXJTe8mBrdLtwXhDX1kCBbSAgeuGDi1QOGUZTi2FgrCk+oiualYNUh0jJtVi/XADX518/qKrUkYUj5Gu4giI/ZVnjslFYEzxYOCtGxLaIhsC1K5mNw7xIGRkApv4MHD5F1aGDXLjCaPAffIIRFY1GHXub/iCvCcGDJ2EKP/cUvKnvIIUDFD0FK3VWy8jM73mNtRlyzxq2JX/9KKb8kS96ZGgyzyUU4EKgVPyM7p7xnGdmZgszj3SCY8s7kt9rrUCiYijg7pszdMqRFtKusDDqFaSeJO6IpK8UryiDx32Ych0VDWk+7RgJC32SvjP1X5zFwDA2xPL37li3RBGBdijk/ODb4IWTaDC+dx9QMmBKLk=
+  distributions: sdist
