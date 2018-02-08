@@ -1,3 +1,4 @@
+attrdict>=2.0.0
 agavepy>=0.6.1
 hashids>=1.2.0
 pytest
