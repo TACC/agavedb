@@ -9,7 +9,7 @@ import pytest
 import random
 import uuid
 
-import agavepy.agave as a
+import agavepy.agave as Agave
 from . import testdata
 
 from agavedb import AgaveKeyValStore
@@ -59,13 +59,13 @@ def credentials():
 
 @pytest.fixture(scope='session')
 def agave(credentials):
-    ag = a.Agave(username=credentials.get('username'),
-                 password=credentials.get('password'),
-                 api_server=credentials.get('apiserver'),
-                 api_key=credentials.get('apikey'),
-                 api_secret=credentials.get('apisecret'),
-                 verify=True)
-    # ag = a.Agave(username=credentials.get('username'),
+    ag = Agave(username=credentials.get('username'),
+               password=credentials.get('password'),
+               api_server=credentials.get('apiserver'),
+               api_key=credentials.get('apikey'),
+               api_secret=credentials.get('apisecret'),
+               verify=True)
+    # ag = Agave(username=credentials.get('username'),
     #              password=credentials.get('password'),
     #              api_server=credentials.get('apiserver'),
     #              api_key=credentials.get('apikey'),
