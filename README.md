@@ -1,5 +1,7 @@
 <h1 id="agavedb.keyval">AgaveDB</h1>
 
+[![Build Status](https://travis-ci.org/TACC/agavedb.svg?branch=master)](https://travis-ci.org/TACC/agavedb)
+
 AgaveDB is multiuser-aware key/value store built using the Agave metadata web service API. 
 
 The library interface is modeled on [pickledb](https://pythonhosted.org/pickleDB/), which, in turn is
