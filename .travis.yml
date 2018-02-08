@@ -1,26 +1,21 @@
----
 language: python
-
 cache:
-  - pip
-
+- pip
 python:
-  - "2.7"
-
+- '2.7'
 install:
-   - pip install -r requirements-travis.txt
-   - pip install git+https://github.com/TACC/agavepy.git@reactors
-   - python setup.py install
-
+- pip install -r requirements-travis.txt
+- pip install git+https://github.com/TACC/agavepy.git@reactors
+- python setup.py install
 script:
-  - py.test agavedb/tests
-
+- py.test agavedb/tests
 after_success:
-  - codecov
-
+- codecov
 deploy:
   provider: pypi
   user: mwvaughn
   password:
-    secure: KpdH/CxCDz1P3w2CPTlW17I1HzysM1Njnc7DKolU8wMJkLSo2AmrkQumLU3HNmD2yoCWxy7K5w9UHTnNyCWgYVfug1i4WTUWenL/BqNbAePvwrogduMRIRKJSoo3KCvYjAtW0XGw3rqgXOVzOXIKvpL1lS8ZBJtxTOuqc9vLxMRTDXwNMD6C68n5lghCYwjRWMU+d7lxNdb3pplV0ymMtb47PpysoMYRr3WQkAjHUaKTI7798BmXufeFKyCUrU5Bsnen1KL6RMcFuYqfMZ0zM1abTvD3xM5SWAt3dV4HrlzuEkS4tk0r7i+JxSL6twyYqXJTe8mBrdLtwXhDX1kCBbSAgeuGDi1QOGUZTi2FgrCk+oiualYNUh0jJtVi/XADX518/qKrUkYUj5Gu4giI/ZVnjslFYEzxYOCtGxLaIhsC1K5mNw7xIGRkApv4MHD5F1aGDXLjCaPAffIIRFY1GHXub/iCvCcGDJ2EKP/cUvKnvIIUDFD0FK3VWy8jM73mNtRlyzxq2JX/9KKb8kS96ZGgyzyUU4EKgVPyM7p7xnGdmZgszj3SCY8s7kt9rrUCiYijg7pszdMqRFtKusDDqFaSeJO6IpK8UryiDx32Ych0VDWk+7RgJC32SvjP1X5zFwDA2xPL37li3RBGBdijk/ODb4IWTaDC+dx9QMmBKLk=
+    secure: QdOWZifbKMgTgzWfVOguiKbxtaI8MAWZHcGhypHYrZLcPQAVjSRFwBhZV7FniJjsNYCGHs2g7+N53RuOquXffenOlKjdJFqfvY8bNuLB0aLctAV740IYQgERgLuyHY2wXWJm7bFYNi5zKFvCrqNlza+Nyp/BFkYw/Sk7KsY/96hC2SQo2RNZq23Ji2dx84Zf737dwRSZ8eRZqwjVQAB9Q0pD/09Q0Am9S5CXTBiCxOFvKwDEK5dXiEftyMgzG5ffuN9TriURS5K2I6IESUu4QuuJiRGqT7sGQDFbZaLjOC4HsZFbiiVQD04pxC9jsQzcIpbD+UeqIjR0fpgYrRwEbaReZQ+HND7Kp74O+vjpsM0lgxTEs0lcS4RiH73e41Z/H44xOGOe/1fbrjfpcG/N2yYkuaT1ms5OdGIXBrX7hwVEUNmODcwbB8BVarUGkpXVhpF8ew4rOT5fb9ze5DjJYKkY+e0tiakrFykkddK+Lyb/KVK2nfFc9k5jxuMNUgPQDSg4884PkTtoDmxVGfimhm7+6MCxMyN2qPFAmekfudbXROEuMF5RbMyzTbj/wavGYn+pkpeGEc06iwXrz3DXF0Bs75PzC2gggYc52yTnyV9E2GE5fIdljUMLvSoJrZC0FPK3CYLqRM9fhBOYinrH9FTiOXVCDaABnR+ARzY3D5A=
   distributions: sdist
+  on:
+    branch: master
