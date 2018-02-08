@@ -1,4 +1,4 @@
-agavepy>=0.6.1
+#agavepy>=0.6.1
+git+https://github.com/TACC/agavepy.git@reactors
 hashids>=1.2.0
 pytest
-py==1.4.26
