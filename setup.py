@@ -8,11 +8,21 @@ import sys
 
 readme = open('README.md').read()
 requires = [pkg for pkg in open('requirements.txt').readlines()]
+HERE = os.path.dirname(os.path.abspath(__file__))
+
+
+def get_version():
+    version = '0.0.0'
+    f = open(os.path.join(HERE, 'VERSION'), 'r')
+    version = f.readline()
+    f.close
+    return version
+
 
 setup(
     name='agavedb',
     packages=['agavedb'],
-    version='0.1.1',
+    version=get_version(),
     description='Multiuser-aware key/value store built atop AgaveAPI metadata',
     author='Matthew W. Vaughn',
     author_email='vaughn@tacc.utexas.edu',

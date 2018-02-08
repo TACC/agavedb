@@ -1,5 +1,7 @@
+version := $(shell cat VERSION)
 
-.PHONY: sdist docs clean release tests
+.PHONY: sdist docs clean dist-clean release tests preflight tag
+.SILENT: sdist docs clean dist-clean release tests preflight tag
 
 sdist: clean
 	python setup.py sdist && \
@@ -23,3 +25,12 @@ dist-clean:
 
 tests:
 	cd agavedb && py.test
+
+preflight:
+	echo "checking git repo is in shape for release"
+	bash scripts/checkrepo.sh
+
+tag: preflight
+	echo "git tag will be: $(version)"
+	git tag -f "${version}"
+	git push origin "${version}"
