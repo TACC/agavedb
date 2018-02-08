@@ -64,9 +64,15 @@ def agave(credentials):
                  api_server=credentials.get('apiserver'),
                  api_key=credentials.get('apikey'),
                  api_secret=credentials.get('apisecret'),
-                 token=credentials.get('token'),
-                 refresh_token=credentials.get('refresh_token'),
-                 verify=credentials.get('verify_certs', True))
+                 verify=True)
+    # ag = a.Agave(username=credentials.get('username'),
+    #              password=credentials.get('password'),
+    #              api_server=credentials.get('apiserver'),
+    #              api_key=credentials.get('apikey'),
+    #              api_secret=credentials.get('apisecret'),
+    #              token=credentials.get('token'),
+    #              refresh_token=credentials.get('refresh_token'),
+    #              verify=credentials.get('verify_certs', True))
     return ag
 
 
