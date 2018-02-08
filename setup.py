@@ -7,7 +7,6 @@ import os
 import sys
 
 readme = open('README.md').read()
-requires = [pkg for pkg in open('requirements.txt').readlines()]
 HERE = os.path.dirname(os.path.abspath(__file__))
 
 
@@ -28,7 +27,7 @@ setup(
     author_email='vaughn@tacc.utexas.edu',
     url='https://github.com/TACC/agavedb',
     package_dir={'agavedb': 'agavedb'},
-    install_requires=requires,
+    install_requires=['attrdict>=2.0.0', 'agavepy>=0.6.1', 'hashids>=1.2.0'],
     license="BSD",
     keywords='',
     classifiers=[

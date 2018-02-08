@@ -17,7 +17,7 @@ deploy:
   user: mwvaughn
   password:
     secure: QdOWZifbKMgTgzWfVOguiKbxtaI8MAWZHcGhypHYrZLcPQAVjSRFwBhZV7FniJjsNYCGHs2g7+N53RuOquXffenOlKjdJFqfvY8bNuLB0aLctAV740IYQgERgLuyHY2wXWJm7bFYNi5zKFvCrqNlza+Nyp/BFkYw/Sk7KsY/96hC2SQo2RNZq23Ji2dx84Zf737dwRSZ8eRZqwjVQAB9Q0pD/09Q0Am9S5CXTBiCxOFvKwDEK5dXiEftyMgzG5ffuN9TriURS5K2I6IESUu4QuuJiRGqT7sGQDFbZaLjOC4HsZFbiiVQD04pxC9jsQzcIpbD+UeqIjR0fpgYrRwEbaReZQ+HND7Kp74O+vjpsM0lgxTEs0lcS4RiH73e41Z/H44xOGOe/1fbrjfpcG/N2yYkuaT1ms5OdGIXBrX7hwVEUNmODcwbB8BVarUGkpXVhpF8ew4rOT5fb9ze5DjJYKkY+e0tiakrFykkddK+Lyb/KVK2nfFc9k5jxuMNUgPQDSg4884PkTtoDmxVGfimhm7+6MCxMyN2qPFAmekfudbXROEuMF5RbMyzTbj/wavGYn+pkpeGEc06iwXrz3DXF0Bs75PzC2gggYc52yTnyV9E2GE5fIdljUMLvSoJrZC0FPK3CYLqRM9fhBOYinrH9FTiOXVCDaABnR+ARzY3D5A=
-  distributions: "sdist"
+  distributions: "sdist bdist_wheel"
   skip_cleanup: true
   on:
     tags: true
