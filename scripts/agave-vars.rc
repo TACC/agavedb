@@ -1,0 +1,8 @@
+set -a
+_AGAVE_APISERVER='https://api.sd2e.org'
+_AGAVE_CLIENT_NAME='travis_ci_vaughn_sd2e'
+_AGAVE_USERNAME='vaughn'
+_AGAVE_PASSWORD='Madlh972!'
+_AGAVE_APIKEY='Z1NDRDSOw782c2e15QoAcHzfNlka'
+_AGAVE_APISECRET='ff3iEuUppxAfHf84wWfmAxurUe4a'
+set +a
