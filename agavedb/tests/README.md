@@ -1,10 +1,10 @@
-## To run the tests
+## To run AgaveDB's tests
 
 1. Provide Agave API credentials. You can use the ones stored in
    $HOME/.agave/current, put them in an agavedb/tests/test_credentials.json
-   file following the templare, or set environment variables (below).
+   file following the template, or set environment variables (below).
 
-2. To run the tests, use the following from the agavedb/tests directory with
+2. To run the tests, use the following from the `agavedb/tests` directory with
    a Python environment that has requirements.txt installed. This can, and
    probably should, be a pipenv or virtualenv environment.
 
@@ -20,10 +20,12 @@ Run all tests with <string> in the name.
 
 ```py.test -k <string>```
 
-### Examples:
+### Examples
+
 ```python
 py.test test_agavedb_keyval.py::test_key_valid
 py.test -k namespace
+py.test
 ```
 
 ## Configure an Agave API client using environment variables
@@ -66,9 +68,9 @@ Password: *******
 
 ```shell
 _AGAVE_APISERVER=https://api.tacc.cloud/
-_AGAVE_CLIENT_NAME=travis_ci_mwvaughn_tacc
 _AGAVE_USERNAME=mwvaughn
 _AGAVE_PASSWORD=Pa$zw0rD!
+_AGAVE_CLIENT_NAME=travis_ci_mwvaughn_tacc
 _AGAVE_APIKEY=Z1c2eNDRDSONw78215QoAcHzflka
 _AGAVE_APISECRET=WfHf84wrUeff3iEuUpxA4a
 ```

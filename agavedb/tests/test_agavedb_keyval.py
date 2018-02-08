@@ -60,19 +60,14 @@ def credentials():
 @pytest.fixture(scope='session')
 def agave(credentials):
     ag = Agave(username=credentials.get('username'),
-               password=credentials.get('password'),
+               password=credentials.get('password', None),
+               client_name=credentials.get('client_name', None),
                api_server=credentials.get('apiserver'),
                api_key=credentials.get('apikey'),
                api_secret=credentials.get('apisecret'),
-               verify=True)
-    # ag = Agave(username=credentials.get('username'),
-    #              password=credentials.get('password'),
-    #              api_server=credentials.get('apiserver'),
-    #              api_key=credentials.get('apikey'),
-    #              api_secret=credentials.get('apisecret'),
-    #              token=credentials.get('token'),
-    #              refresh_token=credentials.get('refresh_token'),
-    #              verify=credentials.get('verify_certs', True))
+               token=credentials.get('token', None),
+               refresh_token=credentials.get('refresh_token', None),
+               verify=credentials.get('verify_certs', True))
     return ag
 
 

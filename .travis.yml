@@ -11,6 +11,8 @@ script:
 - py.test agavedb/tests
 after_success:
 - codecov
+before_deploy:
+  - make clean
 deploy:
   provider: pypi
   user: mwvaughn
