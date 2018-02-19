@@ -8,14 +8,16 @@ sdist: dist-clean
 	make clean
 
 docs:
-	cd scripts && \
-	bash docs.sh
+	cd docs && \
+	make html
 
 install:
 	python setup.py install
 
 clean:
-	rm -rf agavedb/tests/*pyc agavedb/*pyc agavedb.egg-info build/ .cache agavedb/tests/__pycache__ .pytest_cache
+	rm -rf agavedb/tests/*pyc agavedb/*pyc agavedb.egg-info build/ .cache agavedb/tests/__pycache__ .pytest_cache && \
+	cd docs && \
+	make clean
 
 dist-clean: clean
 	rm -rf dist
