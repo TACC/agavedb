@@ -3,6 +3,8 @@ cache:
 - pip
 python:
 - '2.7'
+- '3.3'
+- '3.6'
 install:
 - pip install -r requirements-travis.txt
 - pip install git+https://github.com/TACC/agavepy.git@reactors

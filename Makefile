@@ -21,7 +21,7 @@ dist-clean: clean
 	rm -rf dist
 
 tests:
-	cd agavedb && py.test
+	tox
 
 prerelease: docs sdist
 	git add . && \
