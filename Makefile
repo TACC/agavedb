@@ -15,7 +15,7 @@ install:
 	python setup.py install
 
 clean:
-	rm -rf agavedb/tests/*pyc agavedb/*pyc agavedb.egg-info build/ .cache agavedb/tests/__pycache__
+	rm -rf agavedb/tests/*pyc agavedb/*pyc agavedb.egg-info build/ .cache agavedb/tests/__pycache__ .pytest_cache
 
 dist-clean: clean
 	rm -rf dist
