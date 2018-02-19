@@ -22,6 +22,7 @@ deploy:
   skip_cleanup: true
   on:
     tags: true
+    python: 2.7
 after_deploy:
 - pwd
 - ls
