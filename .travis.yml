@@ -3,14 +3,13 @@ cache:
 - pip
 python:
 - '2.7'
-- '3.3'
 - '3.6'
 install:
 - pip install -r requirements-travis.txt
 - pip install git+https://github.com/TACC/agavepy.git@reactors
 - python setup.py install
 script:
-- py.test agavedb/tests
+- cd agavedb ; py.test tests
 before_deploy:
 - pwd
 - ls
