@@ -24,7 +24,7 @@ AgaveDB
 Installation
 ============
 
-Install from PyPI_::
+Install from PyPI_ ::
 
     pip install agavedb
 
@@ -33,4 +33,13 @@ Install from GitHub checkout::
 
     cd agavedb
     python setup.py install
+
+
+Tests
+=====
+
+Tests are implemented using tox_. To run them, just type ``tox``
+
+.. _PyPI: https://pypi.python.org/pypi/agavedb
+.. _tox: https://tox.readthedocs.io/en/latest
 
