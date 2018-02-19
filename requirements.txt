@@ -1,5 +1,5 @@
 attrdict>=2.0.0
 agavepy>=0.6.1
 hashids>=1.2.0
-pytest
-setuptools
+pytest>=2.7.0
+setuptools>=38.5.1
