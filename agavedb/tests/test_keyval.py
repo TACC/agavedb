@@ -3,6 +3,8 @@
 
 # Usage: See bundled README.md
 
+from builtins import str
+
 import json
 import os
 import pytest
@@ -115,7 +117,7 @@ def test_key_valid(keyvalstore, credentials, test_data):
 
 def test_namespace_fwd(keyvalstore, credentials):
     '''_namespace'''
-    ns = keyvalstore._namespace("abc123")
+    ns = keyvalstore._namespace('abc123')
     expected = '_agkvs_v1/abc123#' + credentials['username']
     assert ns == expected
 
@@ -167,8 +169,10 @@ def test_set_get_rem(keyvalstore, credentials):
     '''test key set/get/delete cycle'''
     key_name = 'keyval-test-' + str(random.randint(10, 99))
     key_valu = '6edd8c34-3aba-46d8-86bf-550db9ffb909'
-    assert keyvalstore.set(key_name, key_valu) == key_name
-    assert keyvalstore.get(key_name) == key_valu
+    set_key_name = keyvalstore.set(key_name, key_valu)
+    assert set_key_name == key_name
+    get_key_valu = keyvalstore.get(key_name)
+    assert get_key_valu == key_valu
     assert keyvalstore.rem(key_name) is True
 
 

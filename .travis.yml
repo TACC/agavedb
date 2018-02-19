@@ -10,7 +10,7 @@ install:
 - pip install git+https://github.com/TACC/agavepy.git@reactors
 - pip install -e .
 script:
-- cd agavedb ; python -m pytest tests
+- python -m pytest agavedb/tests
 before_deploy:
 - pwd
 - ls
