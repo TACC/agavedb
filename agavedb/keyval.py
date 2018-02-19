@@ -9,8 +9,11 @@ Usage:
 from agavedb import AgaveKeyValStore
 ```
 """
+from __future__ import print_function
+from __future__ import absolute_import
 
-from attrdict import AttrDict
+from builtins import object
+from past.builtins import basestring
 from agavepy.agave import Agave
 import re
 import json
@@ -20,7 +23,7 @@ import sys
 import os
 
 sys.path.insert(0, os.path.dirname(__file__))
-import uniqueid
+from . import uniqueid
 
 _SEP = '/'
 _PREFIX = '_agkvs_v1'
@@ -136,7 +139,7 @@ class AgaveKeyValStore(object):
         lowercase. Strips leading and trailing whitespace.
         """
         import unicodedata
-        value = unicode(value)
+        value = str(value)
         if allow_unicode:
             value = unicodedata.normalize('NFKC', value)
         else:
@@ -212,7 +215,7 @@ class AgaveKeyValStore(object):
             expires_t = created_t + _TTL
 
         try:
-            value = unicode(value)
+            value = str(value)
         except Exception as e:
             self.logging.error(
                 "Couldn't coerce {} to unicode: {}".format(value, e))
