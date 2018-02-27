@@ -12,9 +12,14 @@ from agavedb import AgaveKeyValStore
 from __future__ import print_function
 from __future__ import absolute_import
 
+from future.standard_library import install_aliases
+install_aliases()
+
 from builtins import object
 from past.builtins import basestring
 from agavepy.agave import Agave
+
+import base64
 import re
 import json
 import logging
@@ -23,7 +28,8 @@ import sys
 import os
 
 sys.path.insert(0, os.path.dirname(__file__))
-from . import uniqueid
+#from . import uniqueid
+import uniqueid
 
 _SEP = '/'
 _PREFIX = '_agkvs_v1'
@@ -100,7 +106,7 @@ class AgaveKeyValStore(object):
         e.g.) keyname => _agavedb/keyname#username
         """
         if self._key_is_valid(keyname):
-            _keyname = keyname
+            _keyname = base64.urlsafe_b64encode(keyname.encode()).decode()
             _keyname = _PREFIX + _SEP + _keyname + \
                 '#' + self._username()
             return _keyname
@@ -126,6 +132,15 @@ class AgaveKeyValStore(object):
             _suffix = '#' + self._username()
             if keyname.endswith(_suffix):
                 keyname = keyname[:(-1 * len(_suffix))]
+
+        keyname_tmp = ''
+        try:
+            keyname_tmp = base64.urlsafe_b64decode(keyname.encode())
+            keyname_tmp.decode('ascii')
+            keyname = keyname_tmp
+        except Exception:
+            keyname = str(keyname)
+            pass
 
         return keyname
 
@@ -263,7 +278,8 @@ class AgaveKeyValStore(object):
             if uuids:
                 all_keys.append(key_obj['uuid'])
             elif namespace:
-                all_keys.append(key_obj['name'])
+                all_keys.append(self._rev_namespace(key_obj['name'],
+                                removeusername=namespace))
             else:
                 all_keys.append(self._rev_namespace(key_obj['name']))
 
@@ -390,65 +406,7 @@ def main():
     ag = Agave.restore()
     kvs = AgaveKeyValStore(ag)
 
-    print("Test namespacing")
-    print(kvs._namespace("abc123"))
-    print(kvs._rev_namespace("_agkvs_v1/abc123#sd2eadm"))
-    print(kvs._rev_namespace("_agkvs_v1/abc123#sd2eadm", False))
-
-    print("Test simple set/get")
-    print(kvs.set('abc123', 'value34567'))
-    print(kvs.get('abc123'))
-    # non-existent key
-    print(kvs.get('XXXX'))
-
-    # set some more key/values
-    print(kvs.set('org.sd2e.reactors', 'DFGHJKJHGFDSASDFGH'))
-    print(kvs.set('abc345', 'value34567'))
-    print(kvs.set('abc456', 'value34567'))
-
-    print("Test key properties enforcement")
-    # min length
-    kvs.set('xyz', 'SDFGHJKJHGFDSDFGHJK')
-    # type
-    kvs.set(123, 456)
-    kvs.set(None, 456)
-
-    print("Test value type enforcement")
-    kvs.set('abc789', {'name': 'value'})
-    kvs.set('abc789', ('new york', 'los angeles'))
-    kvs.set('abc789', [1, 2, 3])
-    kvs.set('abc789', None)
-    kvs.set('abc789', kvs)
-
-    print("Test get all keys")
     print(kvs.getall())
-
-    print("Test key remove")
-    kvs.rem('abc123')
-    # key abc123 should be done
-    print(kvs.getall())
-
-    # print("Test remove all keys")
-    # kvs.deldb()
-    # empty list
-    print(kvs.getall())
-
-    print("Test adding string w number at beginning")
-    print(kvs.set('numstring', '6G5x4jqPBvBJy'))
-    print(kvs.get('numstring'))
-
-    print("Test adding numerical values")
-    print(kvs.set('numbers.Number.6', '6'))
-    print(kvs.get('numbers.Number.6'))
-    print(kvs.set('numbers.Number.6', 6))
-    print(kvs.get('numbers.Number.6'))
-
-    # print(kvs.set('numbers_Number_6', 6))
-    # print(kvs.get('numstring_Number_6'))
-
-    print("Generate Unique ID")
-    print(kvs.create_key_name())
-
 
 if __name__ == '__main__':
     main()

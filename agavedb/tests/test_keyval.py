@@ -3,6 +3,10 @@
 
 # Usage: See bundled README.md
 
+from future.standard_library import install_aliases
+install_aliases()
+from urllib.parse import urlencode, quote
+
 from builtins import str
 
 import json
@@ -69,7 +73,7 @@ def agave(credentials):
                api_secret=credentials.get('apisecret'),
                token=credentials.get('token', None),
                refresh_token=credentials.get('refresh_token', None),
-               verify=credentials.get('verify_certs', True))
+               verify=True)
     return ag
 
 
@@ -118,7 +122,7 @@ def test_key_valid(keyvalstore, credentials, test_data):
 def test_namespace_fwd(keyvalstore, credentials):
     '''_namespace'''
     ns = keyvalstore._namespace('abc123')
-    expected = '_agkvs_v1/abc123#' + credentials['username']
+    expected = '_agkvs_v1/YWJjMTIz#' + credentials['username']
     assert ns == expected
 
 
@@ -190,4 +194,19 @@ def test_getall(keyvalstore, credentials):
 def test_username(keyvalstore, credentials):
     '''verify that agavedb and test view of username is same'''
     assert credentials['username'] == keyvalstore._username()
+
+
+def test_keys_can_contain_urlchars(keyvalstore, credentials):
+    '''tests to address github.com/TACC/agavedb/issues/1'''
+    test_keys = ['manifest.json:INSERT:sailfish',
+                 u'manifest.json:INSERT:sailfish',
+                 quote('manifest.json:INSERT:sailfish'),
+                 quote(u'manifest.json:INSERT:sailfish')]
+    for key_name in test_keys:
+        key_valu = uuid.uuid4().hex
+        set_key_name = keyvalstore.set(key_name, key_valu)
+        assert set_key_name == key_name
+        get_key_valu = keyvalstore.get(key_name)
+        assert get_key_valu == key_valu
+        assert keyvalstore.rem(key_name) is True
 

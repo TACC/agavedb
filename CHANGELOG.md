@@ -2,6 +2,16 @@
 
 All significant changes will be recorded in this document
 
+## 0.1.7 - Bug fix
+
+* Added
+    * Nothing
+
+* Changed
+    * Now safe to pass urlencoded strings as key names
+
+* Removed
+    * Nothing
 
 ## 0.1.5 - Python3 compatible
 
