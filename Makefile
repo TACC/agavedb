@@ -32,7 +32,7 @@ prerelease: docs sdist
 	git add . && \
 	git commit -m "Releasing ${version}"
 
-preflight:
+preflight: prerelease
 	echo "checking git repo is in shape for release"
 	bash scripts/checkrepo.sh
 
