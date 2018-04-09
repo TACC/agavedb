@@ -32,7 +32,7 @@ sys.path.insert(0, os.path.dirname(__file__))
 import uniqueid
 
 _SEP = '/'
-_PREFIX = '_agkvs_v1'
+_PREFIX = '_agkvs_v2'
 _TTL = 86400
 _MAX_VAL_BYTES = 4096
 _MIN_KEY_BYTES = 4
@@ -47,8 +47,19 @@ class AgaveKeyValStore(object):
 
     """An AgaveKeyValStore instance. Requires an active Agave client"""
 
-    def __init__(self, agaveClient):
-        '''Initialize class with a valid Agave API client'''
+    def __init__(self, agaveClient, prefix=_PREFIX):
+        """
+        Initialize a AgaveKeyValStore object
+
+        Positional parameters:
+        agaveClient - an initialaized Agave object
+
+        Keyword parameters:
+        prefix - str - Optional override for key prefix
+
+        Returns:
+        - AgaveKeyValStore
+        """
         self.client = agaveClient
         self.default_ttl = _TTL
         FORMAT = "[%(levelname)s] %(asctime)s: %(message)s"
@@ -58,6 +69,7 @@ class AgaveKeyValStore(object):
         stderrLogger.setFormatter(
             logging.Formatter(FORMAT, datefmt=DATEFORMAT))
         self.logging.addHandler(stderrLogger)
+        self.prefix = prefix
 
     def set(self, key, value):
         '''Set the string or numeric value of a key'''
@@ -107,7 +119,7 @@ class AgaveKeyValStore(object):
         """
         if self._key_is_valid(keyname):
             _keyname = base64.urlsafe_b64encode(keyname.encode()).decode()
-            _keyname = _PREFIX + _SEP + _keyname + \
+            _keyname = self.prefix + _SEP + _keyname + \
                 '#' + self._username()
             return _keyname
         else:
@@ -123,7 +135,7 @@ class AgaveKeyValStore(object):
             "key type must be string or unicode (type: {})".format(
                 self._type(fullkeyname))
 
-        _prefix = _PREFIX + _SEP
+        _prefix = self.prefix + _SEP
         keyname = fullkeyname
         if keyname.startswith(_prefix):
             keyname = keyname[len(_prefix):]
@@ -183,7 +195,7 @@ class AgaveKeyValStore(object):
         username = self._username()
         # An Agave metadata object, not yet the value
         if shares:
-            _regex = "^{}/{}#".format(_PREFIX, key)
+            _regex = "^{}/{}#".format(self.prefix, key)
             query = json.dumps({'name': {'$regex': _regex, '$options': 'i'}})
         else:
             query = json.dumps({'name': key_name})
@@ -270,7 +282,7 @@ class AgaveKeyValStore(object):
     def _getall(self, namespace=False, sorted=True, uuids=False):
         '''Fetch and return all keys visible to the user'''
         all_keys = []
-        _regex = "^{}/*".format(_PREFIX)
+        _regex = "^{}/*".format(self.prefix)
         query = json.dumps({'name': {'$regex': _regex, '$options': 'i'}})
         # collection of Agave metadata objects
         key_objs = self.client.meta.listMetadata(q=query)
@@ -349,7 +361,7 @@ class AgaveKeyValStore(object):
         # character set
         assert _RE_KEY_NAMES.match(key), \
             "key may only contain non-whitespace characters"
-        assert _SEP not in key, "key may not contain '{}'".format(_SEP)
+        # assert _SEP not in key, "key may not contain '{}'".format(_SEP)
         assert '#' not in key, "key may not contain #"
 
         # length

@@ -5,6 +5,12 @@
         }],
         "lengths": ["a", "ab", "abc"],
         "whitespace": ["abc 123", " abc123", "\tabc123"],
-        "banned": ["abc/123", "abc#123", "#abc123", "/abc123"]
-    }
+        "banned": ["abc#123", "#abc123", "abc123#"]
+    },
+    "urlkeys" : ["agave://data-sd2e-community/ingest/testing/1516919757000/transcriptic/rule-30_q0/1/09242017/manifest/manifest.json",
+              "agave://data-sd2e-community/ingest/testing/1516919757000/transcriptic/rule-30_q0/1/09242017/manifest/manifest.json",
+              "https://hub.sd2e.org/user/sd2e/transcriptic_rule_30_q0_1_09242017/pAN1201_Larabinose_0_aTc_0_IPTG_0_system/pAN1201",
+              "https://hub.sd2e.org/user/sd2e/transcriptic_rule_30_q0_1_09242017/pAN1201_Larabinose_0_aTc_0_IPTG_0_system/pAN1201",
+              "https://hookbin.com/bin/vgLL0eqe?key1=value1&key2=value2",
+              "https://hookbin.com/bin/vgLL0eqe?key1=value1&key2=tacc.cloud%20is%20cool"]
 }

@@ -16,7 +16,7 @@ import random
 import uuid
 
 from agavepy.agave import Agave
-from agavedb import AgaveKeyValStore
+from agavedb import AgaveKeyValStore, uniqueid
 
 from . import testdata
 
@@ -78,14 +78,24 @@ def agave(credentials):
 
 
 @pytest.fixture(scope='session')
-def keyvalstore(agave):
-    kvs = AgaveKeyValStore(agave)
+def keyprefix():
+    return uniqueid.get_id()
+
+
+@pytest.fixture(scope='session')
+def keyvalstore(agave, keyprefix):
+    kvs = AgaveKeyValStore(agave, prefix=keyprefix)
     return kvs
 
 
 @pytest.fixture(scope='session')
 def test_data(credentials):
     return testdata.TestData(credentials).data()
+
+
+def test_prefix(keyvalstore, keyprefix):
+    '''Test that prefix has been overridden'''
+    assert keyvalstore.prefix == keyprefix
 
 
 def test_key_valid(keyvalstore, credentials, test_data):
@@ -122,7 +132,7 @@ def test_key_valid(keyvalstore, credentials, test_data):
 def test_namespace_fwd(keyvalstore, credentials):
     '''_namespace'''
     ns = keyvalstore._namespace('abc123')
-    expected = '_agkvs_v1/YWJjMTIz#' + credentials['username']
+    expected = keyvalstore.prefix + '/YWJjMTIz#' + credentials['username']
     assert ns == expected
 
 
@@ -130,12 +140,12 @@ def test_namespace_rev(keyvalstore, credentials):
     '''_namespace_rev'''
     # with #username extension
     ns = keyvalstore._rev_namespace(
-        '_agkvs_v1/abc123#' + credentials['username'], False)
+        keyvalstore.prefix + '/abc123#' + credentials['username'], False)
     expected = 'abc123#' + credentials['username']
     assert ns == expected
     # without #username extension
     ns = keyvalstore._rev_namespace(
-        '_agkvs_v1/abc123#' + credentials['username'], True)
+        keyvalstore.prefix + '/abc123#' + credentials['username'], True)
     expected = 'abc123'
     assert ns == expected
 
@@ -210,3 +220,21 @@ def test_keys_can_contain_urlchars(keyvalstore, credentials):
         assert get_key_valu == key_valu
         assert keyvalstore.rem(key_name) is True
 
+
+def tests_keys_can_be_uri(keyvalstore, credentials, test_data):
+    '''tests to ensure URI are valid keys'''
+    test_keys = test_data.get('urlkeys')
+    for key_name in test_keys:
+        key_valu = uuid.uuid4().hex
+        set_key_name = keyvalstore.set(key_name, key_valu)
+        assert set_key_name == key_name
+        get_key_valu = keyvalstore.get(key_name)
+        assert get_key_valu == key_valu
+        assert keyvalstore.rem(key_name) is True
+
+
+def test_deldb(keyvalstore):
+    '''getall - validate that an array is returned'''
+    keyvalstore.deldb()
+    keylist = keyvalstore.getall()
+    assert len(keylist) == 0

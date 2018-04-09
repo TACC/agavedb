@@ -7,7 +7,7 @@ python:
 - '3.6'
 install:
 - pip install -r requirements-travis.txt
-- pip install git+https://github.com/TACC/agavepy.git@reactors
+- pip install git+https://github.com/TACC/agavepy.git@develop
 script:
 - python -m pytest agavedb/tests
 before_deploy:
