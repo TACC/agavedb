@@ -11,8 +11,6 @@ from agavedb import AgaveKeyValStore
 """
 from __future__ import print_function
 from __future__ import absolute_import
-
-from builtins import str
 from future.standard_library import install_aliases
 install_aliases()
 
