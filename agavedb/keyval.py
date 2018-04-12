@@ -600,9 +600,7 @@ class AgaveKeyValStore(object):
 
 def to_unicode(input):
     '''Trivial unicode encoder'''
-    if type(input) is not str:
-        input = input.decode('utf-8')
-    return input
+    input = input.encode().decode('utf-8')
 
 # def to_unicode(input):
 #     '''Trivial unicode encoder'''
