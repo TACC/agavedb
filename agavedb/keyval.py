@@ -12,6 +12,7 @@ from agavedb import AgaveKeyValStore
 from __future__ import print_function
 from __future__ import absolute_import
 
+from builtins import str
 from future.standard_library import install_aliases
 install_aliases()
 
@@ -542,22 +543,21 @@ class AgaveKeyValStore(object):
         Validate an ACL object as a dict
 
         Failure raises Exception unless permissive is True
-        Does not validate username exists
+        * Does not validate that username exists
         """
-        err = 'Invalid ACL: '
+        err = 'Invalid ACL: {}'
         try:
             assert isinstance(acl, dict), "Not a dict"
             assert 'username' in acl and 'permission' in acl, \
                 "Both username and permission are required"
             assert isinstance(acl['permission'], dict), \
                 "Permission must be a dict"
-            assert isinstance(acl['username'], str) or \
-                isinstance(acl['username'], unicode), \
+            assert isinstance(acl['username'], basestring), \
                 "Username must be string or unicode"
             assert set(acl['permission'].keys()) == set(VALID_PEMS) or \
                 set(acl['permission'].keys()) <= set(VALID_PEMS), \
                 "Valid permission types are {} not {}".format(
-                    VALID_PEMS, acl['permission'].keys())
+                    VALID_PEMS, list(acl['permission'].keys()))
             for p in acl['permission']:
                 assert isinstance(acl['permission'][p], bool), \
                     "Only Boolean values allowed for permission values"
@@ -566,7 +566,7 @@ class AgaveKeyValStore(object):
             if permissive is True:
                 return False
             else:
-                raise AgaveError(err + exc.message)
+                raise AgaveError(err.format(exc))
 
     def __get_api_username(self):
         '''Determine username'''

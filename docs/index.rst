@@ -8,15 +8,15 @@ AgaveDB
 
 A multiuser-aware key/value store built using the Agave metadata API
 
-The library interface is modeled on pickledb_, which is inspired by Redis_. 
-Eventually, it will support Agave-based permissions and sharing. If you need a
-more document-oriented solution, you can utilize the underlying Agave API
-metadata service_.
+The library interface is modeled on pickledb_, which is inspired by Redis_.
+A key difference between AgaveDB and some other key stores is that it supports
+access controls on a per-key basis.
+
 
 **Usage:**
 
 .. code-block:: python
-   
+
    from agavedb import AgaveKeyValStore, Agave
    ag = Agave.restore()
    db = AgaveKeyValStore(ag)
@@ -27,7 +27,7 @@ metadata service_.
 
 .. toctree::
    :maxdepth: 2
- 
+
    quick_tour.rst
    keys_values.rst
 
