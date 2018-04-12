@@ -17,7 +17,7 @@ install_aliases()
 
 from builtins import object
 from past.builtins import basestring
-from agavepy.agave import Agave
+from agavepy.agave import Agave, AgaveError
 
 import base64
 import re
@@ -38,9 +38,10 @@ _MAX_VAL_BYTES = 4096
 _MIN_KEY_BYTES = 4
 _MAX_KEY_BYTES = 512
 _RE_KEY_NAMES = re.compile('^[\S]+$', re.UNICODE)
-
+VALID_PEMS = ['read', 'write', 'execute']
+VALID_ROLE_USERNAMES = ['world', 'public']
 # TODO: Implement list and dict methods
-# TODO: Implement permissions management
+# DONE: Implement permissions management
 
 
 class AgaveKeyValStore(object):
@@ -78,6 +79,58 @@ class AgaveKeyValStore(object):
         except Exception as e:
             self.logging.error("set({}, {}): {}".format(key, value, e))
             return None
+
+    def setacl(self, key, acl):
+        """
+        Set an ACL on a given key
+
+        Positional parameters:
+        key - str - Key to manage permissions on
+        acl - dict - Valid permissions object
+
+        {'read': bool, 'write': bool}
+
+        Returns:
+        Boolean True on success, and Exception + False on failure
+        """
+        try:
+            self.validate_acl(acl)
+            return self._setacl(key, acl)
+        except Exception as e:
+            self.logging.error("setacl({}, {}): {}".format(key, acl, e))
+            return False
+
+    def remacl(self, key, user):
+        """
+        Remove an ACL on a key for a given user
+
+        Positional parameters:
+        key - str - Key to manage permissions on
+        user - str - Username whose ACL should be dropped
+
+        Returns:
+        Boolean True on success, and Exception + False on failure
+        """
+        acl = {'username': user,
+               'permission': {'read': None, 'write': None, 'execute': None}}
+        try:
+            return self._setacl(key, acl)
+        except Exception as e:
+            self.logging.error("remacl({}, {}): {}".format(key, user, e))
+            return False
+
+    def getacls(self, key, user=None):
+        """
+        Get the ACLs for a given key
+
+        Keywork parameters:
+        user - str - Return ACL only for this username
+        """
+        try:
+            return self._getacls(key, user)
+        except Exception as e:
+            self.logging.error("getacl: {}".format(e))
+            return []
 
     def get(self, key):
         '''Get the value of a key'''
@@ -279,6 +332,59 @@ class AgaveKeyValStore(object):
 
         return key
 
+    def _setacl(self, key, acl):
+        '''Add or update an ACL to a key'''
+        key_uuid = None
+        key_uuid_obj = {}
+        try:
+            key_uuid_obj = self._get(key)
+            key_uuid = key_uuid_obj['uuid']
+        except KeyError:
+            self.logging.debug("Key {} not found".format(key))
+            raise KeyError("Key {} not found".format(key))
+
+        pem = self.to_text_pem(acl)
+        meta = json.dumps(pem, indent=0)
+        try:
+            self.client.meta.updateMetadataPermissions(
+                uuid=key_uuid, body=meta)
+            return True
+        except Exception as e:
+                self.logging.error(
+                    "Error setting ACL for {}: {}".format(key, e))
+                return False
+
+    def _getacls(self, key, user=None):
+        '''List ACLs on a given key'''
+        key_uuid = None
+        key_uuid_obj = {}
+        acls = []
+
+        try:
+            key_uuid_obj = self._get(key)
+            key_uuid = key_uuid_obj['uuid']
+        except KeyError:
+            self.logging.debug("Key {} not found".format(key))
+            raise KeyError("Key {} not found".format(key))
+        try:
+            resp = self.client.meta.listMetadataPermissions(uuid=key_uuid)
+            for acl in resp:
+                formatted_acl = {'username': acl.get('username'),
+                                 'permission': acl.get('permission')}
+                if user is None:
+                    acls.append(formatted_acl)
+                else:
+                    if user == acl.get('username'):
+                        acls.append(formatted_acl)
+                    # show the user is inheriting world acl
+                    elif 'world' == acl.get('username'):
+                        acls.append(formatted_acl)
+        except Exception as e:
+            self.logging.debug(
+                "Failed getting ACLs for for {}: {}".format(key, e))
+
+        return acls
+
     def _getall(self, namespace=False, sorted=True, uuids=False):
         '''Fetch and return all keys visible to the user'''
         all_keys = []
@@ -382,6 +488,85 @@ class AgaveKeyValStore(object):
     def create_key_name(cls):
         '''Create a unique, human-friendly key name'''
         return uniqueid.get_id()
+
+    @classmethod
+    def to_text_pem(cls, acl):
+        pem = {"username": acl.get('username')}
+        permission = acl.get('permission')
+        perm_str = u'NONE'
+        r, w, x = permission.get('read', False), \
+            permission.get('write', False), \
+            permission.get('execute', False)
+
+        if r:
+            perm_str = u'READ'
+        if w:
+            perm_str = u'READ_WRITE'
+        if x:
+            perm_str = u'READ_EXECUTE'
+        if r and w:
+            perm_str = u'READ_WRITE'
+        if r and x:
+            perm_str = u'READ_EXECUTE'
+        if r and w and x:
+            perm_str = u'ALL'
+
+        pem['permission'] = perm_str
+        return pem
+
+    @classmethod
+    def from_text_pem(cls, pem):
+        acl = {"username": pem.get('username')}
+        permission = pem.get('permission').upper()
+        perm_dict = {'read': False, 'write': False, 'execute': False}
+
+        if u'ALL' in permission:
+            perm_dict = {'read': True, 'write': True, 'execute': True}
+        elif u'NONE' in permission:
+            perm_dict = {'read': False, 'write': False, 'execute': False}
+        else:
+            if u'READ' in permission:
+                perm_dict['read'] = True
+            if u'WRITE' in permission:
+                perm_dict['write'] = True
+                perm_dict['read'] = True
+            if u'EXECUTE' in permission:
+                perm_dict['execute'] = True
+                perm_dict['read'] = True
+        acl['permission'] = perm_dict
+        return acl
+
+    @classmethod
+    def validate_acl(cls, acl, permissive=False):
+        """
+        Validate an ACL object as a dict
+
+        Failure raises Exception unless permissive is True
+        Does not validate username exists
+        """
+        err = 'Invalid ACL: '
+        try:
+            assert isinstance(acl, dict), "Not a dict"
+            assert 'username' in acl and 'permission' in acl, \
+                "Both username and permission are required"
+            assert isinstance(acl['permission'], dict), \
+                "Permission must be a dict"
+            assert isinstance(acl['username'], str) or \
+                isinstance(acl['username'], unicode), \
+                "Username must be string or unicode"
+            assert set(acl['permission'].keys()) == set(VALID_PEMS) or \
+                set(acl['permission'].keys()) <= set(VALID_PEMS), \
+                "Valid permission types are {} not {}".format(
+                    VALID_PEMS, acl['permission'].keys())
+            for p in acl['permission']:
+                assert isinstance(acl['permission'][p], bool), \
+                    "Only Boolean values allowed for permission values"
+            return True
+        except Exception as exc:
+            if permissive is True:
+                return False
+            else:
+                raise AgaveError(err + exc.message)
 
     def __get_api_username(self):
         '''Determine username'''

@@ -12,5 +12,14 @@
               "https://hub.sd2e.org/user/sd2e/transcriptic_rule_30_q0_1_09242017/pAN1201_Larabinose_0_aTc_0_IPTG_0_system/pAN1201",
               "https://hub.sd2e.org/user/sd2e/transcriptic_rule_30_q0_1_09242017/pAN1201_Larabinose_0_aTc_0_IPTG_0_system/pAN1201",
               "https://hookbin.com/bin/vgLL0eqe?key1=value1&key2=value2",
-              "https://hookbin.com/bin/vgLL0eqe?key1=value1&key2=tacc.cloud%20is%20cool"]
+              "https://hookbin.com/bin/vgLL0eqe?key1=value1&key2=tacc.cloud%20is%20cool"],
+    "acls" : { "valid":[{"username": "taco", "permission": {"read": true, "write": true }},
+                        {"username": "taco", "permission": {"read": true, "write": false }},
+                        {"username": "tikka", "permission": {"read": false, "write": false }}],
+                "invalid": [{"name": "taco", "permission": {"read": true, "write": true }},
+                            {"username": "taco", "pem": {"read": true, "write": true }},
+                            {"username": "taco"},
+                            {"username": "taco", "permission": {"exec": true, "write": true }},
+                            {"username": "taco", "permission": {"read": "true", "write": true }}]
+             }
 }

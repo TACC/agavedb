@@ -15,7 +15,7 @@ import pytest
 import random
 import uuid
 
-from agavepy.agave import Agave
+from agavepy.agave import Agave, AgaveError
 from agavedb import AgaveKeyValStore, uniqueid
 
 from . import testdata
@@ -75,6 +75,21 @@ def agave(credentials):
                refresh_token=credentials.get('refresh_token', None),
                verify=True)
     return ag
+
+
+@pytest.fixture(scope='session')
+def fake_key():
+    return 'keyval-test-' + str(random.randint(10, 99))
+
+
+@pytest.fixture(scope='session')
+def fake_user():
+    return 'taco' + str(random.randint(10, 99))
+
+
+@pytest.fixture(scope='session')
+def fake_value():
+    return (uniqueid.get_id() * 5)
 
 
 @pytest.fixture(scope='session')
@@ -238,3 +253,85 @@ def test_deldb(keyvalstore):
     keyvalstore.deldb()
     keylist = keyvalstore.getall()
     assert len(keylist) == 0
+
+
+def test_validate_acl(keyvalstore, test_data):
+    '''run through various ACL forms'''
+    acls = test_data.get('acls')
+    # check that valid acls all pass
+    for acl in acls['valid']:
+        keyvalstore.validate_acl(acl, permissive=False)
+    # check that invalid structs are detected
+    for acl in acls['invalid']:
+        with pytest.raises(AgaveError) as exc:
+            keyvalstore.validate_acl(acl, permissive=False)
+        assert 'Invalid ACL' in str(exc.value)
+    # check that permssive squashes Exception
+    for acl in acls['invalid']:
+        response = keyvalstore.validate_acl(acl, permissive=True)
+        assert response is False
+
+
+def test_list_acl(keyvalstore, fake_key, fake_value, test_data):
+    response = keyvalstore.set(fake_key, fake_value)
+    assert isinstance(keyvalstore.getacls(response), list)
+    keyvalstore.rem(fake_key)
+
+
+def test_add_acl(keyvalstore, fake_key, fake_value, fake_user, test_data):
+    keyvalstore.set(fake_key, fake_value)
+    fake_acl = {'username': fake_user, 'permission': {'read': True}}
+    assert keyvalstore.setacl(fake_key, fake_acl) is True
+    resp = keyvalstore.getacls(fake_key)
+    unames = []
+    for acl in resp:
+        unames.append(acl.get('username'))
+    assert fake_user in unames, 'test user not found in listing'
+    resp = keyvalstore.getacls(fake_key, user=fake_user)
+    if len(resp) > 0:
+        acl_read = resp[0].get('permission').get('read', False)
+        acl_write = resp[0].get('permission').get('write', False)
+        acl_execute = resp[0].get('permission').get('execute', False)
+    else:
+        acl_read, acl_write, acl_execute = False, False, False
+    assert acl_read is True, 'user should be able to read'
+    assert acl_write is False, 'user shouldnt be able to write'
+    assert acl_execute is False, 'user shouldnt be able to exec'
+    keyvalstore.rem(fake_key)
+
+
+def test_acl_from_world(keyvalstore, fake_key, fake_value,
+                        fake_user, test_data):
+    keyvalstore.set(fake_key, fake_value)
+    fake_acl = {'username': 'world', 'permission': {'read': True}}
+    assert keyvalstore.setacl(fake_key, fake_acl) is True
+    resp = keyvalstore.getacls(fake_key)
+    unames = []
+    for acl in resp:
+        unames.append(acl.get('username'))
+    assert 'world' in unames, 'world user not found in listing'
+    # world granted read, so fake user should be able to see it
+    # this abuses the fact that the agave pems system doesnt validate unames
+    resp = keyvalstore.getacls(fake_key, user=fake_user)
+    if len(resp) > 0:
+        acl_read = resp[0].get('permission').get('read', False)
+        acl_write = resp[0].get('permission').get('write', False)
+        acl_execute = resp[0].get('permission').get('execute', False)
+    else:
+        acl_read, acl_write, acl_execute = False, False, False
+    assert acl_read is True, 'user should inherit +read'
+    assert acl_write is False, 'user should not inherit +write'
+    assert acl_execute is False, 'user should not inherit +exec'
+    assert keyvalstore.remacl(fake_key, 'world') is True
+    # Having stripped away world permission, test user should lose its ACL
+    resp = keyvalstore.getacls(fake_key, user=fake_user)
+    if len(resp) > 0:
+        acl_read = resp[0].get('permission').get('read', False)
+        acl_write = resp[0].get('permission').get('write', False)
+        acl_execute = resp[0].get('permission').get('execute', False)
+    else:
+        acl_read, acl_write, acl_execute = False, False, False
+    assert acl_read is False, 'user should no longer inherit +read'
+    assert acl_write is False, 'user should not inherit +write'
+    assert acl_execute is False, 'user should not inherit +exec'
+    keyvalstore.rem(fake_key)
