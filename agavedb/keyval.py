@@ -393,12 +393,14 @@ class AgaveKeyValStore(object):
             if uuids:
                 all_keys.append(to_unicode(key_obj['uuid']))
             elif namespace:
-                temp_key = to_unicode(self._rev_namespace(
-                    key_obj['name'], removeusername=namespace))
-                all_keys.append(temp_key)
+                temp_key = self._rev_namespace(
+                    key_obj['name'], removeusername=namespace)
+                all_keys.append(to_unicode(temp_key))
             else:
-                temp_key = to_unicode(self._rev_namespace(key_obj['name']))
-                all_keys.append(temp_key)
+                temp_key = self._rev_namespace(key_obj['name'])
+                all_keys.append(to_unicode(temp_key))
+ #               print("{} / {}".format(type(temp_key), len(temp_key)))
+ #               print(key_obj)
 
         if sorted:
             all_keys.sort()
@@ -598,9 +600,10 @@ class AgaveKeyValStore(object):
 
 
 def to_unicode(input):
-    '''Trivial unicode encoder'''
-    input = input.encode().decode('utf-8')
-    return input
+    '''Py2/Py3 unicode encoder'''
+    if isinstance(input, bytes):
+        input = str(input)
+    return input.encode().decode('utf-8')
 
 # def to_unicode(input):
 #     '''Trivial unicode encoder'''
