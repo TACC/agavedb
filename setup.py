@@ -11,7 +11,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 
 
 def get_version():
-    version = '0.2.2'
+    version = '0.3.1'
     f = open(os.path.join(HERE, 'VERSION'), 'r')
     version = f.readline()
     f.close

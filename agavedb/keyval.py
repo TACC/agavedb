@@ -143,9 +143,8 @@ class AgaveKeyValStore(object):
 
     def getall(self):
         '''Return a list of all keys user owns or has access to'''
-        namespaces = False
         try:
-            return self._getall(namespaces)
+            return self._getall(namespace=False)
         except Exception as e:
             self.logging.error("Error in getall: {}".format(e))
             return []
@@ -386,7 +385,7 @@ class AgaveKeyValStore(object):
 
         return acls
 
-    def _getall(self, namespace=False, sorted=True, uuids=False):
+    def _getall(self, sorted=True, namespace=False, uuids=False):
         '''Fetch and return all keys visible to the user'''
         all_keys = []
         _regex = "^{}/*".format(self.prefix)
@@ -395,12 +394,14 @@ class AgaveKeyValStore(object):
         key_objs = self.client.meta.listMetadata(q=query)
         for key_obj in key_objs:
             if uuids:
-                all_keys.append(key_obj['uuid'])
+                all_keys.append(to_unicode(key_obj['uuid']))
             elif namespace:
-                all_keys.append(self._rev_namespace(key_obj['name'],
-                                removeusername=namespace))
+                temp_key = to_unicode(self._rev_namespace(
+                    key_obj['name'], removeusername=namespace))
+                all_keys.append(temp_key)
             else:
-                all_keys.append(self._rev_namespace(key_obj['name']))
+                temp_key = to_unicode(self._rev_namespace(key_obj['name']))
+                all_keys.append(temp_key)
 
         if sorted:
             all_keys.sort()
@@ -597,6 +598,15 @@ class AgaveKeyValStore(object):
         else:
             print("Returning hard-coded value for API server")
             return 'https://api.sd2e.org'
+
+
+def to_unicode(input):
+    '''Trivial unicode encoder'''
+    if type(input) != unicode:
+        input = input.decode('utf-8')
+        return input
+    else:
+        return input
 
 
 def main():
