@@ -14,7 +14,6 @@ from __future__ import absolute_import
 from future.standard_library import install_aliases
 install_aliases()
 
-from builtins import object
 from past.builtins import basestring
 from agavepy.agave import Agave, AgaveError
 
@@ -601,6 +600,7 @@ class AgaveKeyValStore(object):
 def to_unicode(input):
     '''Trivial unicode encoder'''
     input = input.encode().decode('utf-8')
+    return input
 
 # def to_unicode(input):
 #     '''Trivial unicode encoder'''

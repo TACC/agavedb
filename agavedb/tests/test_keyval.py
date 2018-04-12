@@ -6,8 +6,7 @@
 from future.standard_library import install_aliases
 install_aliases()
 from urllib.parse import urlencode, quote
-
-from builtins import str
+from past.builtins import basestring
 
 import json
 import os
@@ -17,6 +16,7 @@ import uuid
 
 from agavepy.agave import Agave, AgaveError
 from agavedb import AgaveKeyValStore, uniqueid
+from keyval import to_unicode
 
 from . import testdata
 
@@ -79,22 +79,22 @@ def agave(credentials):
 
 @pytest.fixture(scope='session')
 def fake_key():
-    return 'keyval-test-' + str(random.randint(10, 99))
+    return to_unicode('keyval-test-' + str(random.randint(10, 99)))
 
 
 @pytest.fixture(scope='session')
 def fake_user():
-    return 'taco' + str(random.randint(10, 99))
+    return to_unicode('taco' + str(random.randint(10, 99)))
 
 
 @pytest.fixture(scope='session')
 def fake_value():
-    return (uniqueid.get_id() * 5)
+    return to_unicode(uniqueid.get_id() * 5)
 
 
 @pytest.fixture(scope='session')
 def keyprefix():
-    return uniqueid.get_id()
+    return to_unicode(uniqueid.get_id())
 
 
 @pytest.fixture(scope='session')
