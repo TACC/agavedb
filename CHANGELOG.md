@@ -8,7 +8,7 @@ All significant changes will be recorded in this document
     * Support for user-specific ACL via setacl, getacls, remacl. Needed to support TACC Reactors 'alias' functions.
 
 * Changed
-    * Nothing
+    * Updated documentation
 
 * Removed
     * Nothing
