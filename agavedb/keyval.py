@@ -138,10 +138,10 @@ class AgaveKeyValStore(object):
             self.logging.error("get: {}".format(e))
             return None
 
-    def getall(self):
+    def getall(self, sorted=True):
         '''Return a list of all keys user owns or has access to'''
         try:
-            return self._getall(namespace=False)
+            return self._getall(sorted=sorted, namespace=False)
         except Exception as e:
             self.logging.error("Error in getall: {}".format(e))
             return []
@@ -169,9 +169,8 @@ class AgaveKeyValStore(object):
         """
         if self._key_is_valid(keyname):
             _keyname = base64.urlsafe_b64encode(keyname.encode()).decode()
-            _keyname = self.prefix + _SEP + _keyname + \
-                '#' + self._username()
-            return _keyname
+            _keyname = self.prefix + _SEP + _keyname + '#' + self._username()
+            return str(_keyname)
         else:
             raise ValueError("Invalid key name: {}".format(keyname))
             return None
@@ -190,21 +189,28 @@ class AgaveKeyValStore(object):
         if keyname.startswith(_prefix):
             keyname = keyname[len(_prefix):]
 
-        if removeusername:
-            _suffix = '#' + self._username()
-            if keyname.endswith(_suffix):
-                keyname = keyname[:(-1 * len(_suffix))]
+        # if removeusername:
+        _suffix = '#' + self._username()
+        if keyname.endswith(_suffix):
+            keyname = keyname[:(-1 * len(_suffix))]
+
+        # print(keyname)
+        if not isinstance(keyname, bytes):
+            keyname = keyname.encode()
 
         keyname_tmp = ''
-        try:
-            keyname_tmp = base64.urlsafe_b64decode(keyname.encode())
-            keyname_tmp.decode('ascii')
-            keyname = keyname_tmp
-        except Exception:
-            keyname = str(keyname)
-            pass
+        keyname_tmp = base64.urlsafe_b64decode(keyname)
+        keyname = keyname_tmp
 
-        return keyname
+        # Python2/3 compatible coercion to a "stringy" key name
+        if isinstance(keyname, bytes):
+            if not removeusername:
+                keyname = keyname + _suffix.encode()
+            return keyname.decode('utf-8')
+        else:
+            if not removeusername:
+                keyname = keyname + _suffix
+            return str(keyname)
 
     def _slugify(self, value, allow_unicode=False):
         """
@@ -391,14 +397,17 @@ class AgaveKeyValStore(object):
         key_objs = self.client.meta.listMetadata(q=query)
         for key_obj in key_objs:
             if uuids:
-                all_keys.append(to_unicode(key_obj['uuid']))
+                tmp_uuid = key_obj['uuid']
+                if isinstance(tmp_uuid, bytes):
+                    tmp_uuid = tmp_uuid.decode('utf-8')
+                all_keys.append(tmp_uuid)
             elif namespace:
                 temp_key = self._rev_namespace(
                     key_obj['name'], removeusername=namespace)
-                all_keys.append(to_unicode(temp_key))
+                all_keys.append(temp_key)
             else:
                 temp_key = self._rev_namespace(key_obj['name'])
-                all_keys.append(to_unicode(temp_key))
+                all_keys.append(temp_key)
  #               print("{} / {}".format(type(temp_key), len(temp_key)))
  #               print(key_obj)
 
@@ -451,10 +460,10 @@ class AgaveKeyValStore(object):
     def _value_is_valid(self, value):
         '''Value must be a string. Others may be supported later.'''
         assert isinstance(value, basestring), \
-            "value must be string or unicode (type: {})".format(
+            "value must be str-like (type: {})".format(
                 self._type(value))
         assert len(value) <= _MAX_VAL_BYTES, \
-            "value must be <= {} (length: {})".format(len(value))
+            "value must be <= {} bytes (length: {})".format(len(value))
         return True
 
     def _key_is_valid(self, key):
@@ -462,14 +471,17 @@ class AgaveKeyValStore(object):
 
         # type
         assert isinstance(key, basestring), \
-            "key type must be string or unicode (type: {})".format(
+            "key type must be str-like type (type: {})".format(
                 self._type(key))
 
         # character set
         assert _RE_KEY_NAMES.match(key), \
             "key may only contain non-whitespace characters"
+
+        # now that the key value is base64 encoded before namespacing, this
+        # is no longer required
         # assert _SEP not in key, "key may not contain '{}'".format(_SEP)
-        assert '#' not in key, "key may not contain #"
+        # assert '#' not in key, "key may not contain #"
 
         # length
         assert len(key) <= _MAX_KEY_BYTES, \
