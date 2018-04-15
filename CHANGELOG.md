@@ -2,6 +2,8 @@
 
 All significant changes will be recorded in this document
 
+## 0.4.0 - Refactored unicode and testing
+
 ## 0.3.0 - ACLs
 
 * Added
