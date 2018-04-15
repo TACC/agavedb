@@ -1,5 +1,5 @@
 # magic....
-version := $(cat agavedb/__init__.py | grep 'version' | cut -d ' ' -f 3 | tr -d /\'//)
+version := $(shell cat agavedb/__init__.py | grep 'version' | cut -d ' ' -f 3 | tr -d /\'//)
 
 .PHONY: sdist docs clean dist-clean release tests preflight tag
 .SILENT: sdist docs clean dist-clean release tests preflight tag
