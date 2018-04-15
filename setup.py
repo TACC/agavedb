@@ -20,7 +20,7 @@ setup(
     author_email='vaughn@tacc.utexas.edu',
     url='https://github.com/TACC/agavedb',
     package_dir={'agavedb': 'agavedb'},
-    data_files=[('', ['VERSION', 'requirements.txt'])],
+    data_files=[('', ['requirements.txt'])],
     install_requires=['attrdict>=2.0.0', 'agavepy>=0.7.0', 'hashids>=1.2.0'],
     license="BSD",
     keywords='',

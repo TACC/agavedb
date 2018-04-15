@@ -1,12 +1,18 @@
 """
-AgaveDB is multiuser-aware key/value store built using the Agave metadata web service API.
+AgaveDB
 
-The library interface is modeled on pickledb, which is inspired by Redis. Eventually, it will support Agave-based permissions and sharing. If you need a more
-document-oriented solution, you can utilize the underlying Agave `metadata` service.
+Multiuser-aware key/value store built atop the Agave metadata API.
+
+The library interface is modeled on pickledb, which is inspired by Redis, but
+with the addition of simple access control list via the Agave permisisons
+model. If you need document-oriented solution, you should use the actual
+Agave metadata service rather than AgaveDB.
 
 Usage:
 ```python
-from agavedb import AgaveKeyValStore
+from agavedb import AgaveKeyValStore, Agave
+
+db = AgaveKeyValStore(Agave.restore())
 ```
 """
 from __future__ import print_function
@@ -26,7 +32,7 @@ import sys
 import os
 
 sys.path.insert(0, os.path.dirname(__file__))
-#from . import uniqueid
+# from . import uniqueid
 import uniqueid
 
 _SEP = '/'
@@ -61,7 +67,7 @@ class AgaveKeyValStore(object):
         """
         self.client = agaveClient
         self.default_ttl = _TTL
-        FORMAT = "[%(levelname)s] %(asctime)s: %(message)s"
+        FORMAT = "%(asctime)s [%(levelname)s] - %(message)s"
         DATEFORMAT = "%Y-%m-%dT%H:%M:%SZ"
         self.logging = logging.getLogger('AgaveKeyValStore')
         stderrLogger = logging.StreamHandler()
@@ -95,7 +101,8 @@ class AgaveKeyValStore(object):
             self.validate_acl(acl)
             return self._setacl(key, acl)
         except Exception as e:
-            self.logging.error("setacl({}, {}): {}".format(key, acl, e))
+            self.logging.debug(
+                "Failed to set ACl({}, {}): {}".format(key, acl, e))
             return False
 
     def remacl(self, key, user):
@@ -114,7 +121,8 @@ class AgaveKeyValStore(object):
         try:
             return self._setacl(key, acl)
         except Exception as e:
-            self.logging.error("remacl({}, {}): {}".format(key, user, e))
+            self.logging.debug(
+                "Failed to remove ACL({}, {}): {}".format(key, user, e))
             return False
 
     def getacls(self, key, user=None):
@@ -127,7 +135,7 @@ class AgaveKeyValStore(object):
         try:
             return self._getacls(key, user)
         except Exception as e:
-            self.logging.error("getacl: {}".format(e))
+            self.logging.debug("Failed to getacls: {}".format(e))
             return []
 
     def get(self, key):
@@ -135,7 +143,7 @@ class AgaveKeyValStore(object):
         try:
             return self._get(key)['value']
         except Exception as e:
-            self.logging.error("get: {}".format(e))
+            self.logging.debug("Failed to get: {}".format(e))
             return None
 
     def getall(self, sorted=True):
@@ -143,7 +151,7 @@ class AgaveKeyValStore(object):
         try:
             return self._getall(sorted=sorted, namespace=False)
         except Exception as e:
-            self.logging.error("Error in getall: {}".format(e))
+            self.logging.debug("Failed to getall: {}".format(e))
             return []
 
     def rem(self, key):
@@ -151,7 +159,7 @@ class AgaveKeyValStore(object):
         try:
             return self._rem(key)
         except Exception as e:
-            print("Error in rem: {}".format(e))
+            self.logging.debug("Failed to rem: {}".format(e))
             return False
 
     def deldb(self):
@@ -159,7 +167,7 @@ class AgaveKeyValStore(object):
         try:
             return self._remall()
         except Exception as e:
-            print("Error in deldb: {}".format(e))
+            self.logging.debug("Failed to deldb: {}".format(e))
             return False
 
     def _namespace(self, keyname):
@@ -300,14 +308,14 @@ class AgaveKeyValStore(object):
         try:
             value = str(value)
         except Exception as e:
-            self.logging.error(
+            self.logging.debug(
                 "Couldn't coerce {} to unicode: {}".format(value, e))
             return None
 
         try:
             value = self._stringify(value)
         except Exception as e:
-            self.logging.error(
+            self.logging.debug(
                 "Couldn't stringify {}: {}".format(value, e))
             return None
 
@@ -323,14 +331,14 @@ class AgaveKeyValStore(object):
             try:
                 self.client.meta.addMetadata(body=meta)
             except Exception as e:
-                self.logging.error("Error creating key {}: {}".format(key, e))
+                self.logging.debug("Error creating key {}: {}".format(key, e))
                 return None
         else:
             # Update
             try:
                 self.client.meta.updateMetadata(uuid=key_uuid, body=meta)
             except Exception as e:
-                self.logging.error("Error updating key {}: {}".format(key, e))
+                self.logging.debug("Error updating key {}: {}".format(key, e))
                 return None
 
         return key
@@ -353,7 +361,7 @@ class AgaveKeyValStore(object):
                 uuid=key_uuid, body=meta)
             return True
         except Exception as e:
-                self.logging.error(
+                self.logging.debug(
                     "Error setting ACL for {}: {}".format(key, e))
                 return False
 
@@ -408,8 +416,6 @@ class AgaveKeyValStore(object):
             else:
                 temp_key = self._rev_namespace(key_obj['name'])
                 all_keys.append(temp_key)
- #               print("{} / {}".format(type(temp_key), len(temp_key)))
- #               print(key_obj)
 
         if sorted:
             all_keys.sort()
@@ -426,7 +432,7 @@ class AgaveKeyValStore(object):
             raise KeyError("No such key: {}".format(key))
             return False
         except Exception as e:
-            self.logging.info("Error validating key {}: {}".format(key, e))
+            self.logging.debug("Error validating key {}: {}".format(key, e))
             return False
 
         try:
@@ -453,7 +459,7 @@ class AgaveKeyValStore(object):
             for key_uuid in key_list:
                 self._rem_by_uuid(key_uuid)
         except Exception:
-            self.logging.error("Error deleting all keys")
+            self.logging.debug("Error deleting all keys")
             return False
         return True
 
@@ -587,7 +593,7 @@ class AgaveKeyValStore(object):
         elif self.client.username is not None:
             return self.client.username
         else:
-            print("No username could be determined")
+            self.logging.debug("No username could be determined")
             return None
 
     def __get_api_token(self):
@@ -597,7 +603,7 @@ class AgaveKeyValStore(object):
         elif self.client.token.token_info.get('access_token') is not None:
             return self.client.token.token_info.get('access_token')
         else:
-            print("Failed to retrieve API access_token")
+            self.logging.debug("Failed to retrieve API access_token")
             return None
 
     def __get_api_server(self):
@@ -607,7 +613,7 @@ class AgaveKeyValStore(object):
         elif self.client.token.api_server is not None:
             return self.client.token.api_server
         else:
-            print("Returning hard-coded value for API server")
+            self.logging.debug("Returning hard-coded value for API server")
             return 'https://api.sd2e.org'
 
 

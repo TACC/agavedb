@@ -32,7 +32,7 @@ tests:
 
 prerelease: docs sdist
 	git add . && \
-	git commit -m "Releasing ${version}"
+	git commit -m "Releasing ${version}" || true
 
 preflight: prerelease
 	echo "checking git repo is in shape for release"
