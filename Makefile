@@ -1,4 +1,5 @@
-version := $(shell cat VERSION)
+# magic....
+version := $(cat agavedb/__init__.py | grep 'version' | cut -d ' ' -f 3 | tr -d /\'//)
 
 .PHONY: sdist docs clean dist-clean release tests preflight tag
 .SILENT: sdist docs clean dist-clean release tests preflight tag
@@ -20,6 +21,7 @@ clean:
 	rm -rf .cache
 	rm -rf *__pycache__*
 	rm -rf *.pytest_cache*
+	rm -rf *.hypothesis
 	cd docs && make clean
 
 dist-clean: clean

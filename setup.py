@@ -5,23 +5,16 @@ from __future__ import print_function
 from setuptools import setup
 import os
 import sys
+from agavedb import __version__
 
 readme = open('README.rst').read()
 HERE = os.path.dirname(os.path.abspath(__file__))
 
 
-def get_version():
-    version = '0.4.0'
-    f = open(os.path.join(HERE, 'VERSION'), 'r')
-    version = f.readline()
-    f.close
-    return version
-
-
 setup(
     name='agavedb',
     packages=['agavedb'],
-    version=get_version(),
+    version=__version__,
     description='Multiuser-aware key/value store built atop AgaveAPI metadata',
     author='Matthew W. Vaughn',
     author_email='vaughn@tacc.utexas.edu',
