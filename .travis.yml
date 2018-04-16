@@ -9,7 +9,7 @@ install:
 - pip install -r requirements-travis.txt
 - pip install git+https://github.com/TACC/agavepy.git@develop
 script:
-- python -m pytest agavedb/tests
+- python -m pytest -s -vv --cov=agavedb agavedb/tests
 before_deploy:
 - pwd
 - ls
@@ -22,7 +22,7 @@ deploy:
   skip_cleanup: true
   on:
     tags: true
-    python: 2.7
+    python: 3.6
 after_deploy:
 - pwd
 - ls
