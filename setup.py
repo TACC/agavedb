@@ -7,21 +7,22 @@ import os
 import sys
 from agavedb import __version__
 
-readme = open('README.rst').read()
 HERE = os.path.dirname(os.path.abspath(__file__))
-
+readme = open('README.rst').read()
+requires = [pkg for pkg in open('requirements.txt').readlines()]
 
 setup(
     name='agavedb',
     packages=['agavedb'],
     version=__version__,
     description='Multiuser-aware key/value store built atop AgaveAPI metadata',
+    long_description=readme(),
     author='Matthew W. Vaughn',
     author_email='vaughn@tacc.utexas.edu',
     url='https://github.com/TACC/agavedb',
     package_dir={'agavedb': 'agavedb'},
-    data_files=[('', ['requirements.txt'])],
-    install_requires=['attrdict>=2.0.0', 'agavepy>=0.7.0', 'hashids>=1.2.0'],
+    data_files=[('', ['requirements-travis.txt', 'requirements.txt'])],
+    install_requires=requires(),
     license="BSD",
     keywords='',
     classifiers=[
