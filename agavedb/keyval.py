@@ -52,7 +52,7 @@ class AgaveKeyValStore(object):
 
     """An AgaveKeyValStore instance. Requires an active Agave client"""
 
-    def __init__(self, agaveClient, prefix=_PREFIX):
+    def __init__(self, agaveClient, prefix=_PREFIX, loglevel='INFO'):
         """
         Initialize a AgaveKeyValStore object
 
@@ -61,6 +61,7 @@ class AgaveKeyValStore(object):
 
         Keyword parameters:
         prefix - str - Optional override for key prefix
+        loglevel - Set the logging level. DEBUG is good for diagnosing issues.
 
         Returns:
         - AgaveKeyValStore
@@ -70,6 +71,7 @@ class AgaveKeyValStore(object):
         FORMAT = "%(asctime)s [%(levelname)s] - %(message)s"
         DATEFORMAT = "%Y-%m-%dT%H:%M:%SZ"
         self.logging = logging.getLogger('AgaveKeyValStore')
+        self.logging.setLevel(loglevel)
         stderrLogger = logging.StreamHandler()
         stderrLogger.setFormatter(
             logging.Formatter(FORMAT, datefmt=DATEFORMAT))
