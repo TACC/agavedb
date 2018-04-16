@@ -8,8 +8,9 @@ import sys
 from agavedb import __version__
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-readme = open('README.rst').read()
-requires = [pkg for pkg in open('requirements.txt').readlines()]
+readme = open(os.path.join(HERE, 'README.rst')).read()
+requires = [pkg for pkg in open(
+    os.path.join(HERE, 'requirements.txt')).readlines()]
 
 setup(
     name='agavedb',
