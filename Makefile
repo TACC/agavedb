@@ -27,6 +27,9 @@ clean:
 dist-clean: clean
 	rm -rf dist
 
+pytest:
+	python -m pytest -s -vv --cov=agavedb agavedb/tests ${PYTESTOPTS}
+
 tests:
 	tox
 

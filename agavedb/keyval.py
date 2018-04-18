@@ -20,6 +20,8 @@ from __future__ import absolute_import
 from future.standard_library import install_aliases
 install_aliases()
 
+__version__ = '0.4.4'
+
 from past.builtins import basestring
 from agavepy.agave import Agave, AgaveError
 
@@ -30,10 +32,7 @@ import logging
 import time
 import sys
 import os
-
-sys.path.insert(0, os.path.dirname(__file__))
-# from . import uniqueid
-import uniqueid
+from . import uniqueid
 
 _SEP = '/'
 _PREFIX = '_agkvs_v2'
@@ -77,6 +76,7 @@ class AgaveKeyValStore(object):
             logging.Formatter(FORMAT, datefmt=DATEFORMAT))
         self.logging.addHandler(stderrLogger)
         self.prefix = prefix
+        self.version = __version__
 
     def set(self, key, value):
         '''Set the string or numeric value of a key'''
@@ -172,15 +172,25 @@ class AgaveKeyValStore(object):
             self.logging.debug("Failed to deldb: {}".format(e))
             return False
 
+    def _stringify(self, value):
+        if isinstance(value, bytes):
+            return value.decode('utf-8')
+        else:
+            return value
+
     def _namespace(self, keyname):
         """Namespaces a key
 
         e.g.) keyname => _agavedb/keyname#username
+
+        Returns: string-like object
         """
         if self._key_is_valid(keyname):
             _keyname = base64.urlsafe_b64encode(keyname.encode()).decode()
             _keyname = self.prefix + _SEP + _keyname + '#' + self._username()
-            return str(_keyname)
+            #return str(_keyname)
+            # make it stringy
+            return self._stringify(_keyname)
         else:
             raise ValueError("Invalid key name: {}".format(keyname))
             return None
@@ -189,6 +199,8 @@ class AgaveKeyValStore(object):
         """Reverse namespacing of a key's internal representation.
 
         e.g.) _agavedb/keyname#username => keyname
+
+        Returns: string-like object
         """
         assert isinstance(fullkeyname, basestring), \
             "key type must be string or unicode (type: {})".format(
@@ -240,7 +252,12 @@ class AgaveKeyValStore(object):
                 'NFKD', value).encode('ascii', 'ignore').decode('ascii')
         value = re.sub(r'[^\w\s-]', '', value).strip().lower()
         value = re.sub(r'[-\s]+', '-', value)
-        return value
+         # stringify
+        return self._stringify(value)
+        # if isinstance(value, bytes):
+        #     return value.decode('utf-8')
+        # else:
+        #     return value
 
     def _type(self, obj):
         '''Return the type name of a Python object'''
@@ -249,7 +266,7 @@ class AgaveKeyValStore(object):
     def _username(self):
         '''Return the current Agave API username'''
         try:
-            return self.__get_api_username()
+            return self._stringify(self.__get_api_username())
         except Exception as e:
             raise Exception("Unable to establish username: {}".format(e))
             return None
@@ -276,7 +293,7 @@ class AgaveKeyValStore(object):
                 key_objs_other.append(key_obj)
         key_objs_merged = key_objs_owner + key_objs_other
         if len(key_objs_merged) > 0:
-            return key_objs_merged[0]
+            return self._stringify(key_objs_merged[0])
         else:
             raise KeyError("No such key: {}".format(key))
 
@@ -315,7 +332,7 @@ class AgaveKeyValStore(object):
             return None
 
         try:
-            value = self._stringify(value)
+            value = self._mongo_stringify(value)
         except Exception as e:
             self.logging.debug(
                 "Couldn't stringify {}: {}".format(value, e))
@@ -326,7 +343,7 @@ class AgaveKeyValStore(object):
                            'value': value,
                            '_created': created_t,
                            '_expires': expires_t,
-                           '_ttl': _TTL})
+                           '_ttl': _TTL}, separators=(',', ':'))
 
         if key_uuid is None:
             # Create
@@ -343,7 +360,7 @@ class AgaveKeyValStore(object):
                 self.logging.debug("Error updating key {}: {}".format(key, e))
                 return None
 
-        return key
+        return self._stringify(key)
 
     def _setacl(self, key, acl):
         '''Add or update an ACL to a key'''
@@ -357,15 +374,16 @@ class AgaveKeyValStore(object):
             raise KeyError("Key {} not found".format(key))
 
         pem = self.to_text_pem(acl)
-        meta = json.dumps(pem, indent=0)
+        meta = json.dumps(pem, separators=(',', ':'))
         try:
             self.client.meta.updateMetadataPermissions(
                 uuid=key_uuid, body=meta)
-            return True
         except Exception as e:
                 self.logging.debug(
                     "Error setting ACL for {}: {}".format(key, e))
                 return False
+
+        return True
 
     def _getacls(self, key, user=None):
         '''List ACLs on a given key'''
@@ -422,7 +440,11 @@ class AgaveKeyValStore(object):
         if sorted:
             all_keys.sort()
 
-        return all_keys
+        safened_keys = []
+        for k in all_keys:
+            safened_keys.append(self._stringify(k))
+
+        return safened_keys
 
     def _rem(self, key):
         '''Delete a key from a user's namespace'''
@@ -501,7 +523,7 @@ class AgaveKeyValStore(object):
 
         return True
 
-    def _stringify(self, value):
+    def _mongo_stringify(self, value):
         '''Coerce a value to a string type before sending to MongoDB'''
         return '"' + value + '"'
 
@@ -617,21 +639,6 @@ class AgaveKeyValStore(object):
         else:
             self.logging.debug("Returning hard-coded value for API server")
             return 'https://api.sd2e.org'
-
-
-def to_unicode(input):
-    '''Py2/Py3 unicode encoder'''
-    if isinstance(input, bytes):
-        input = str(input)
-    return input.encode().decode('utf-8')
-
-# def to_unicode(input):
-#     '''Trivial unicode encoder'''
-#     if type(input) != unicode:
-#         input = input.decode('utf-8')
-#         return input
-#     else:
-#         return input
 
 
 def main():

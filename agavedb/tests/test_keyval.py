@@ -10,13 +10,13 @@ from past.builtins import basestring
 
 import json
 import os
+import sys
 import pytest
 import random
 import uuid
 
 from agavepy.agave import Agave, AgaveError
-from agavedb import AgaveKeyValStore, uniqueid
-from keyval import to_unicode
+from agavedb import AgaveKeyValStore, uniqueid, __version__
 
 from . import testdata
 
@@ -57,6 +57,10 @@ def test_data(credentials):
     return testdata.TestData(credentials).data()
 
 
+def test_version(keyvalstore):
+    assert keyvalstore.version == __version__
+
+
 def test_prefix(keyvalstore, keyprefix):
     '''Test that prefix has been overridden'''
     assert keyvalstore.prefix == keyprefix
@@ -95,9 +99,9 @@ def test_key_valid(keyvalstore, credentials, test_data):
 
 def test_namespace_fwd(keyvalstore, credentials):
     '''_namespace'''
-    ns = str(keyvalstore._namespace('abc123'))
+    ns = keyvalstore._namespace('abc123')
     expected = keyvalstore.prefix + '/YWJjMTIz#' + credentials['username']
-    assert ns == expected
+    assert str(ns) == str(expected)
 
 
 def test_namespace_rev(keyvalstore, credentials):
@@ -148,8 +152,14 @@ def test_set_get_rem(keyvalstore, credentials):
     key_valu = '6edd8c34-3aba-46d8-86bf-550db9ffb909'
     set_key_name = keyvalstore.set(key_name, key_valu)
     assert set_key_name == key_name
+    # retrieve value from key
     get_key_valu = keyvalstore.get(key_name)
     assert get_key_valu == key_valu
+    # ensure its in the listing of all keys
+    getall = keyvalstore.getall()
+    assert set_key_name in getall
+    for els in getall:
+        assert not isinstance(els, bytes)
     assert keyvalstore.rem(key_name) is True
 
 
@@ -179,9 +189,11 @@ def test_keys_can_contain_urlchars(keyvalstore, credentials):
     for key_name in test_keys:
         key_valu = uuid.uuid4().hex
         set_key_name = keyvalstore.set(key_name, key_valu)
+        assert isinstance(set_key_name, basestring)
         assert set_key_name == key_name
         get_key_valu = keyvalstore.get(key_name)
         assert get_key_valu == key_valu
+        assert isinstance(get_key_valu, basestring)
         assert keyvalstore.rem(key_name) is True
 
 
