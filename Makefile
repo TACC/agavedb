@@ -30,6 +30,9 @@ dist-clean: clean
 pytest:
 	python -m pytest -s -vv --cov=agavedb agavedb/tests ${PYTESTOPTS}
 
+pytest3:
+	python3 -m pytest -s -vv --cov=agavedb agavedb/tests ${PYTESTOPTS}
+
 tests:
 	tox
 
