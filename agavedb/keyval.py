@@ -20,7 +20,7 @@ from __future__ import absolute_import
 from future.standard_library import install_aliases
 install_aliases()
 
-__version__ = '0.4.4'
+__version__ = '0.4.6'
 
 from past.builtins import basestring
 from agavepy.agave import Agave, AgaveError
@@ -178,7 +178,7 @@ class AgaveKeyValStore(object):
         else:
             return value
 
-    def _namespace(self, keyname):
+    def _namespace(self, keyname, permissive=True):
         """Namespaces a key
 
         e.g.) keyname => _agavedb/keyname#username
@@ -192,10 +192,12 @@ class AgaveKeyValStore(object):
             # make it stringy
             return self._stringify(_keyname)
         else:
-            raise ValueError("Invalid key name: {}".format(keyname))
+            if permissive is False:
+                raise ValueError("Invalid key name: {}".format(keyname))
             return None
 
-    def _rev_namespace(self, fullkeyname, removeusername=True):
+    def _rev_namespace(self, fullkeyname,
+                       removeusername=True, permissive=True):
         """Reverse namespacing of a key's internal representation.
 
         e.g.) _agavedb/keyname#username => keyname
@@ -228,11 +230,23 @@ class AgaveKeyValStore(object):
         if isinstance(keyname, bytes):
             if not removeusername:
                 keyname = keyname + _suffix.encode()
-            return keyname.decode('utf-8')
+            try:
+                return keyname.decode('utf-8')
+            except Exception as e:
+                if permissive:
+                    return None
+                else:
+                    raise Exception(e)
         else:
             if not removeusername:
                 keyname = keyname + _suffix
-            return str(keyname)
+            try:
+                return str(keyname)
+            except Exception as e:
+                if permissive:
+                    return None
+                else:
+                    raise Exception(e)
 
     def _slugify(self, value, allow_unicode=False):
         """
